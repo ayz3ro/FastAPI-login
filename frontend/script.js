@@ -3,6 +3,8 @@ document.getElementById('loginButton').addEventListener('click', function () {
   const password = document.getElementById('password').value.trim();
   const errorMessage = document.getElementById('errorMessage');
 
+  errorMessage.style.display = 'none';
+
   if (!email) {
     errorMessage.textContent = 'Email field is required.';
     errorMessage.style.display = 'block';
@@ -19,8 +21,7 @@ document.getElementById('loginButton').addEventListener('click', function () {
     errorMessage.style.display = 'block';
   }
   else {
-    errorMessage.style.display = 'none';
-    fetch('http://127.0.0.1:8000/login', {
+    fetch('http://127.0.0.1:8000/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,12 +32,14 @@ document.getElementById('loginButton').addEventListener('click', function () {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Invalid credentials. Please try again.');
+          return response.json().then((data) => {
+            throw new Error(data.detail || 'Invalid credentials. Please try again.');
+          });
         }
       })
       .then((data) => {
-        alert('Login successful!');
         console.log('Response:', data);
+        window.location.href = '/dashboard';
       })
       .catch((error) => {
         errorMessage.textContent = error.message;
